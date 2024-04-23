@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -9,6 +9,8 @@ from urllib.parse import unquote
 from identify_atack import check_request
 import psutil
 import json
+from pydantic import BaseModel
+from typing import Optional
 
 # Создаем экземпляр приложения FastAPI
 app = FastAPI()
@@ -21,12 +23,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Класс модели для данных, которые получаем через POST-запрос
+class PredictionData(BaseModel):
+    prediction: str
 
+# Переменная для хранения последнего предсказания
+latest_prediction: Optional[str] = None
 # Хранилище логов запросов
 request_logs = []
 suspect_log = []
 request_time = []
 anomalies = []
+users_online_history = []
+prediction_online = []
 def log_request(req: Request):
     now = datetime.now().strftime("%d/%b/%Y %H:%M:%S")
     log_entry = f"{req.client.host} - - [{now}] \"{req.method} {req.url.path}?{req.url.query} HTTP/1.1\" 200"
@@ -158,6 +167,62 @@ async def receive_anomalies(request: Request):
 async def get_anomalies():
     # Возвращаем текущие аномалии в JSON-формате
     return JSONResponse(content=anomalies)
+
+
+@app.get("/api/users-online")
+async def get_users_online():
+    # Получаем текущее время в формате часов и минут
+    current_time = datetime.now().strftime("%H:%M")
+
+    # Генерируем случайное количество пользователей онлайн
+    users_online = random.randint(1, 1000)
+
+    # Формируем запись с текущим временем и количеством пользователей онлайн
+    data = {
+        "time": current_time,
+        "users_online": users_online
+    }
+
+    # Добавляем новую запись в историю
+    users_online_history.append(data)
+
+    # Сохраняем запись в файл
+    with open("/Users/aydyn/Desktop/diplom/web_service/online_users.txt", 'a') as file:
+        file.write(f"{current_time}, {users_online}\n")
+
+    # Возвращаем JSON-ответ с данными о времени и количестве пользователей онлайн
+    return JSONResponse(content=data)
+
+
+@app.get("/api/users-online-history")
+async def get_users_online_history():
+    # Возвращаем историю количества онлайн-пользователей
+    return JSONResponse(content=users_online_history)
+
+
+@app.post("/api/prediction_online")
+async def receive_prediction(data: PredictionData):
+    global latest_prediction
+    # Получаем предсказание из данных POST-запроса
+    latest_prediction = data.prediction
+
+    # Записываем предсказание в текстовый файл
+    with open("predictions.txt", "a") as file:
+        file.write(f"{data.prediction}\n")
+
+    # Возвращаем сообщение о том, что предсказание успешно получено
+    return {"message": "Prediction received successfully."}
+
+
+@app.get("/api/prediction_online")
+async def get_latest_prediction():
+    global latest_prediction
+    # Возвращаем последнее предсказание
+    if latest_prediction is not None:
+        return {"latest_prediction": latest_prediction}
+    else:
+        # Если предсказание еще не было получено
+        raise HTTPException(status_code=404, detail="No prediction available.")
 
 
 if __name__ == '__main__':

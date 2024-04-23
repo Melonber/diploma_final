@@ -80,6 +80,7 @@ def check_for_anomalies():
         # Обновляем последний индекс
         last_index = current_count
 
+# Бесконечный цикл для проверки файла на новые аномалии
 while True:
     check_for_anomalies()
-    time.sleep(5)
+    time.sleep(5)  # Задержка перед повторной проверкой (можете настроить на нужное значение)
