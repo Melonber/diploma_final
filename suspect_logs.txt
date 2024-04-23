@@ -1,0 +1,2 @@
+::1 - - [22/Apr/2024 01:34:32] "GET /api/cryptos?symbol='select * from HTTP/1.1" 200
+::1 - - [22/Apr/2024 01:36:01] "GET /api/cryptos?symbol='select * from HTTP/1.1" 200

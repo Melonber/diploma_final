@@ -1,0 +1,5 @@
+::1 - - [22/Apr/2024 01:24:04] "GET /api/cryptos?symbol=<script>alert()</script> HTTP/1.1" 200
+::1 - - [22/Apr/2024 01:36:21] "GET /api/cryptos?symbol='select * from HTTP/1.1" 200
+::1 - - [22/Apr/2024 01:37:21] "GET /api/cryptos?symbol=<script>alert()</script> HTTP/1.1" 200
+::1 - - [22/Apr/2024 01:40:57] "GET /api/cryptos?symbol='select * from HTTP/1.1" 200
+::1 - - [23/Apr/2024 21:53:24] "GET /api/cryptos?symbol=<script>alert()</script> HTTP/1.1" 200
